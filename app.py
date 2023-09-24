@@ -5,8 +5,8 @@ import json
 
 app = Flask(__name__)
 
-json_file_path = 'C:\\Python39\\Lib\\site-packages\\airstack\\user_data1.json'
-
+api_key = "79e3eca0cf014235987ecef6b4e38090"
+DB_FILE = "user_data1.json"
 # def load_user_data():
 #     try:
 #         with open(json_file_path, 'r') as file:
@@ -17,7 +17,7 @@ json_file_path = 'C:\\Python39\\Lib\\site-packages\\airstack\\user_data1.json'
     
 def load_user_data():
     try:
-        with open(json_file_path, 'r') as file:
+        with open(DB_FILE, 'r') as file:
             # Read the contents of the file as a JSON string
             user_data_json = file.read()
 
@@ -31,7 +31,7 @@ def load_user_data():
 
 # Helper function to save user data to the JSON file
 def save_user_data(data):
-    with open(json_file_path, 'w') as file:
+    with open(DB_FILE, 'w') as file:
         json.dump(data, file, indent=4)
 
 @app.route('/')
@@ -97,16 +97,14 @@ def get_user(wallet_address):
     try:
         # Find the user with the specified wallet address
         user_data = load_user_data()
-        user = None
-        for user_id, data in user_data.items():
-            if data['wallet_address'] == wallet_address:
-                user = {**data, 'user_id': user_id}
-                break
 
-        if user:
+        if wallet_address in user_data:
+            user = user_data[wallet_address]
             return jsonify(user)
         else:
-            return jsonify({"error": f"No user found with wallet address {wallet_address}."})
+            return jsonify(
+                {"error": f"No user found with wallet address {wallet_address}."}
+            )
 
     except Exception as e:
         return jsonify({"error": str(e)})
