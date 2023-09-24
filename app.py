@@ -12,7 +12,6 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 api_key = "79e3eca0cf014235987ecef6b4e38090"
 DB_FILE = "user_data1.json"
-
 # def load_user_data():
 #     try:
 #         with open(json_file_path, 'r') as file:
@@ -125,6 +124,7 @@ def get_user(wallet_address):
 
 @app.route("/checkXMTPEnabled/<address>", methods=["GET"])
 async def checkXMTP(address):
+    api_key = "79e3eca0cf014235987ecef6b4e38090"
     api_client = AirstackClient(api_key=api_key)
 
     query_boolean = """query MyQuery($address: Identity ) {
@@ -155,7 +155,9 @@ async def checkXMTP(address):
 
 @app.route("/checkXMTPLens/<address>", methods=["GET"])
 async def checkXMTPLens(address):
+    api_key = "79e3eca0cf014235987ecef6b4e38090"
     api_client = AirstackClient(api_key=api_key)
+
     query_boolean = """query MyQuery($address: Identity) {
   Socials(
     input: {filter: {identity: {_eq: $address}, dappSlug: {_eq: lens_polygon}}, blockchain: ethereum}
