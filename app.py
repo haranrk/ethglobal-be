@@ -2,8 +2,13 @@ from flask import Flask, jsonify, request
 import asyncio
 from airstack.execute_query import AirstackClient
 import json
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+# cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+CORS(app, resources={r"/*": {"origins": "*"}})
+
 
 api_key = "79e3eca0cf014235987ecef6b4e38090"
 DB_FILE = "user_data1.json"
@@ -61,7 +66,8 @@ def home():
 user_data = {}
 
 
-@app.route("/add_user", methods=["POST"])
+@app.route("/add_user", methods=["POST", "OPTIONS"])
+@cross_origin(origin="*")
 def add_user():
     try:
         # Parse the JSON data from the request body
@@ -99,7 +105,7 @@ def add_user():
         return jsonify({"error": str(e)})
 
 
-@app.route("/user/<wallet_address>", methods=["GET"])
+@app.route("/user/<wallet_address>", methods=["GET", "OPTIONS", "POST"])
 def get_user(wallet_address):
     try:
         # Find the user with the specified wallet address
