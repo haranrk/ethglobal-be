@@ -14,7 +14,7 @@ DB_FILE = "user_data1.json"
 #     except FileNotFoundError:
 #         # If the file doesn't exist, return an empty dictionary
 #         return {}
-    
+matched_to=[] 
 def load_user_data():
     try:
         with open(DB_FILE, 'r') as file:
@@ -38,21 +38,88 @@ def save_user_data(data):
 def home():
     return "Welcome to our SocialConnect app!!!!!!"
 
-# @app.route('/match', methods=['GET'])
-# async def match(address):
-#     api_key = '79e3eca0cf014235987ecef6b4e38090'
-#     api_client = AirstackClient(api_key=api_key)
+@app.route('/match/<username>', methods=['GET'])
+async def match(username):
+    api_key = '79e3eca0cf014235987ecef6b4e38090'
+    api_client = AirstackClient(api_key=api_key)
 
-#     query_boolean = """query MyQuery($address: Identity ) {
-#     XMTPs(input: {blockchain: ALL, filter: {owner: {_eq: $address}}}) {
-#     XMTP {
-#         isXMTPEnabled
-#     }
-#     }
-#     }"""
+    matched_to=["henri.lens",
+"pussyriotxyz.lens",
+"marenaltman.lens",
+"salti.lens",
+"rachb.lens",
+"mylene.lens",
+"salti.lens"
+"gregcardo.lens",
+"edwardtay.lens",
+"polmaire.lens",
+"larryscruff.lens"
+]
 
-#     variables = {"address": address}
+    query_boolean = """query MyQuery($username2: Identity) {
+  TokenBalances(
+    input: {filter: {owner: {_eq: "salti.lens"}, tokenType: {_eq: ERC20}}, blockchain: polygon}
+  ) {
+    TokenBalance {
+      token {
+        tokenBalances(
+          input: {filter: {owner: {_eq: $username2}, tokenType: {_eq: ERC20}}}
+        ) {
+          id
+          token {
+            address
+            symbol
+            name
+            owner {
+              identity
+            }
+          }
+        }
+      }
+      owner {
+        blockchain
+      }
+    }
+  }
+}"""
+    res = []
+    for i in matched_to:
+        # print(i)
+        variables = {
+    "username2": i
+    }
+        
+        execute_query_client = api_client.create_execute_query_object(
+        query=query_boolean, variables=variables)
+        query_response = await execute_query_client.execute_paginated_query()
 
+        data = json.dumps(query_response.data)
+
+        data=str(data)
+        response_data = json.loads(data)
+        
+
+# Access the "identity" field
+        identity = None  # Default value if not found
+        try:
+            # new_data = json.loads(response_data["data"])
+            token_balance_list = response_data.get("TokenBalances", {}).get("TokenBalance", [])
+            for item in token_balance_list:
+                token = item.get("token", {})
+                tokenbal = token.get("tokenBalances")
+                if isinstance(tokenbal, list) and not isinstance(tokenbal, dict) and tokenbal:
+                    inner = tokenbal[0]['token']['owner']
+                    if inner and inner['identity']:
+                        identity = inner['identity']
+                        res.append(identity)
+                
+                if identity:
+                    break  # Stop when identity is found
+        except (KeyError, json.JSONDecodeError):
+            pass
+
+    return jsonify({"data": res[0], "error": query_response.error})
+        
 user_data = {}
 
 @app.route('/add_user', methods=['POST'])
