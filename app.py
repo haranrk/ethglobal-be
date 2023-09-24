@@ -65,12 +65,13 @@ def home():
 user_data = {}
 
 
-@app.route("/add_user", methods=["POST", "OPTIONS"])
+@app.route("/users/new", methods=["POST", "OPTIONS"])
 @cross_origin(origin="*")
 def add_user():
     try:
         # Parse the JSON data from the request body
         request_data = request.get_json()
+        print(request_data)
 
         # Extract data from the JSON
         wallet_address = request_data.get("wallet_address")
