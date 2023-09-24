@@ -115,8 +115,11 @@ def get_user(wallet_address):
             user = user_data[wallet_address]
             return jsonify(user)
         else:
-            return jsonify(
-                {"error": f"No user found with wallet address {wallet_address}."}
+            return (
+                jsonify(
+                    {"error": f"No user found with wallet address {wallet_address}."}
+                ),
+                404,
             )
 
     except Exception as e:
